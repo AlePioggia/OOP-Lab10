@@ -1,6 +1,4 @@
 package it.unibo.oop.lab.reactivegui03;
-
-
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -41,54 +39,34 @@ public final class AnotherConcurrentGUI extends JFrame{
         t.schedule(new TimerTask() {
             @Override
             public void run() {
-               SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                  AnotherConcurrentGUI.this.stop.doClick();
-                } 
-               });
+                SwingUtilities.invokeLater(() -> {
+                    AnotherConcurrentGUI.this.stop.doClick();
+                });
             }
-        }, 10000);
+        }, 10000L);
         final Agent agent = new Agent();
         new Thread(agent).start();
-        stop.addActionListener(new ActionListener() { 
-        @Override
-        public void actionPerformed(final ActionEvent e) {
+        up.addActionListener(a -> agent.goUp());
+        down.addActionListener(a -> agent.goDown());
+        stop.addActionListener( a -> {
             agent.stopCounting();
             up.setEnabled(false);
             down.setEnabled(false);
             stop.setEnabled(false);
-        }
         });
-        up.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                agent.goUp();
-            } 
-        });
-       down.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-                agent.goDown();
-        }   
-       });
-        
     }
-  
+   
     private class Agent implements Runnable {
         private volatile boolean stop;
-        private volatile int counter;
+        private int counter;
         private volatile boolean up;
         
         @Override
         public void run() {
             while (!this.stop) {
                 try {
-                    SwingUtilities.invokeAndWait(new Runnable() {
-                        @Override
-                        public void run() {
-                            AnotherConcurrentGUI.this.displayValue.setText(Integer.toString(Agent.this.counter));
-                        }
+                    SwingUtilities.invokeAndWait(() -> {
+                        displayValue.setText(Integer.toString(Agent.this.counter));
                     });
                     upDownClick();
                     Thread.sleep(100);
@@ -97,21 +75,18 @@ public final class AnotherConcurrentGUI extends JFrame{
                 }
             }
         }
-
+        
         public void stopCounting() {
             this.stop = true;
         }
-        
         public void goUp() {
             this.up = true;
         }
-        
         public void goDown() {
             this.up = false;
         }
-        
         private int upDownClick(){
             return this.up ? this.counter++ : this.counter--;
         }
-}
+    }
 }
