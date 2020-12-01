@@ -6,6 +6,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,8 +37,18 @@ public final class AnotherConcurrentGUI extends JFrame{
         panel.add(stop);
         this.getContentPane().add(panel);
         this.setVisible(true);
-        final tAgent tAgent = new tAgent();
-        new Thread(tAgent).start();
+        final Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            @Override
+            public void run() {
+               SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                  AnotherConcurrentGUI.this.stop.doClick();
+                } 
+               });
+            }
+        }, 10000);
         final Agent agent = new Agent();
         new Thread(agent).start();
         stop.addActionListener(new ActionListener() { 
@@ -62,19 +74,7 @@ public final class AnotherConcurrentGUI extends JFrame{
        });
         
     }
-
-    private class tAgent implements Runnable {
-        public void run() {
-            try {
-                Thread.sleep(10000);
-                AnotherConcurrentGUI.this.stop.doClick();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    
-    
+  
     private class Agent implements Runnable {
         private volatile boolean stop;
         private volatile int counter;
