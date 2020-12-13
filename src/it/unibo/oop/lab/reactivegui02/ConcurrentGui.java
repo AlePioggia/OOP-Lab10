@@ -1,11 +1,19 @@
 package it.unibo.oop.lab.reactivegui02;
 
 
-import java.awt.*;
-import java.lang.reflect.InvocationTargetException;
-import javax.swing.*;
 
-public final class ConcurrentGui extends JFrame{
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.lang.reflect.InvocationTargetException;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+
+public final class ConcurrentGui extends JFrame {
 
     private static final long serialVersionUID = -7249181363918880432L;
     private static final double WIDTH_PERC = 0.2;
@@ -14,7 +22,6 @@ public final class ConcurrentGui extends JFrame{
     private final JButton up = new JButton("Up");
     private final JButton down = new JButton("Down");
     private final JButton stop = new JButton("Stop");
-    
     public ConcurrentGui() {
         super();
         final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -27,12 +34,11 @@ public final class ConcurrentGui extends JFrame{
         panel.add(stop);
         this.getContentPane().add(panel);
         this.setVisible(true);
-        
         final Agent agent = new Agent();
         new Thread(agent).start();
         up.addActionListener(a -> agent.goUp());
         down.addActionListener(a -> agent.goDown());
-        stop.addActionListener( a -> {
+        stop.addActionListener(a -> {
             agent.stopCounting();
             up.setEnabled(false);
             down.setEnabled(false);
@@ -44,7 +50,6 @@ public final class ConcurrentGui extends JFrame{
         private volatile boolean stop;
         private int counter;
         private volatile boolean up;
-        
         @Override
         public void run() {
             while (!this.stop) {
@@ -69,7 +74,7 @@ public final class ConcurrentGui extends JFrame{
         public void goDown() {
             this.up = false;
         }
-        private int upDownClick(){
+        private int upDownClick() {
             return this.up ? this.counter++ : this.counter--;
         }
     }
